@@ -16,7 +16,7 @@ The **Student Registration System** is a web application designed to manage stud
 
 ## Technologies Used
 
-- **Frontend**: React (or Next.js)
+- **Frontend**: React
   - Handles UI components, page routing, and state management.
   - Fetches data from the backend using API calls.
   
