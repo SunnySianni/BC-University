@@ -3,28 +3,15 @@ import { Link } from "react-router-dom";
 
 const Navbar = () => {
     return (
-        <nav>
-            <ul>
-                {/* Link to Home */}
-                <li><Link to="/">Home</Link></li>
-
-                {/* Link to Add Student */}
-                <li><Link to="/add-student">Add Student</Link></li>
-
-                {/* Link to View Students */}
-                <li><Link to="/students">View Students</Link></li>
-
-                {/* Link to Add Course */}
-                <li><Link to="/add-course">Add Course</Link></li>
-
-                {/* Link to View Courses */}
-                <li><Link to="/courses">View Courses</Link></li>
-
-                {/* Link to Add Payment */}
-                <li><Link to="/add-payment">Add Payment</Link></li>
-
-                {/* Link to View Payments */}
-                <li><Link to="/payments">View Payments</Link></li>
+        <nav className="navbar">
+            <ul className="nav-links">
+                <li><Link to="/" className="nav-link">Home</Link></li>
+                <li><Link to="/add-student" className="nav-link">Add Student</Link></li>
+                <li><Link to="/students" className="nav-link">View Students</Link></li>
+                <li><Link to="/add-course" className="nav-link">Add Course</Link></li>
+                <li><Link to="/courses" className="nav-link">View Courses</Link></li>
+                <li><Link to="/add-payment" className="nav-link">Add Payment</Link></li>
+                <li><Link to="/payments" className="nav-link">View Payments</Link></li>
             </ul>
         </nav>
     );

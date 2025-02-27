@@ -8,14 +8,17 @@ const AddPayment = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         const paymentData = { student_id: studentId, amount, payment_date: paymentDate };
 
         // Send POST request to backend
-        axios.post('http://localhost:5000/payments', paymentData)
+        axios.post('http://localhost:5000/api/payments', paymentData)
             .then(response => {
                 console.log('Payment added successfully:', response.data);
                 // Optionally reset form or give success message
+                setStudentId('');
+                setAmount('');
+                setPaymentDate('');
             })
             .catch(error => {
                 console.error('There was an error adding the payment!', error);
