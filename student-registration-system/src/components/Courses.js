@@ -6,7 +6,7 @@ const Courses = () => {
 
     useEffect(() => {
         // Fetch all courses
-        axios.get('/api/courses')
+        axios.get('http://localhost:5000/courses')  // Update the API endpoint to match your backend
             .then(response => {
                 setCourses(response.data);
             })
@@ -20,7 +20,9 @@ const Courses = () => {
             <h2>Courses List</h2>
             <ul>
                 {courses.map(course => (
-                    <li key={course.id}>{course.course_name} - {course.schedule}</li>
+                    <li key={course.id}>
+                        {course.course_name} - {course.schedule}
+                    </li>
                 ))}
             </ul>
         </div>

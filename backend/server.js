@@ -1,11 +1,14 @@
 require("dotenv").config();
 const express = require("express");
+const mysql = require("mysql2");
 const cors = require("cors");
-const db = require("./db"); // Importing the database connection
+const db = require('./db'); 
+
 
 const app = express();
 app.use(cors());
 app.use(express.json());  // Middleware to parse JSON data
+
 
 // Fetch all students
 app.get("/students", (req, res) => {
@@ -74,6 +77,60 @@ app.delete("/students/:id", (req, res) => {
             return;
         }
         res.json({ message: "Student deleted successfully" });
+    });
+});
+
+// Fetch all courses
+app.get("/courses", (req, res) => {
+    db.query("SELECT * FROM courses", (err, result) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json(result);
+    });
+});
+
+// Add a new course
+app.post("/courses", (req, res) => {
+    const { course_name, schedule } = req.body;
+
+    if (!course_name || !schedule) {
+        return res.status(400).json({ error: "Course name and schedule are required" });
+    }
+
+    const query = "INSERT INTO courses (course_name, schedule) VALUES (?, ?)";
+    db.query(query, [course_name, schedule], (err, result) => {
+        if (err) {
+            console.error('Error inserting course:', err);
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.status(201).json({
+            message: "Course added successfully",
+            course: { id: result.insertId, course_name, schedule }
+        });
+    });
+});
+
+// Enroll student in a course
+app.post("/enroll", (req, res) => {
+    const { student_id, course_id } = req.body;
+
+    if (!student_id || !course_id) {
+        return res.status(400).json({ error: "Student ID and Course ID are required" });
+    }
+
+    const query = "INSERT INTO enrollments (student_id, course_id) VALUES (?, ?)";
+    db.query(query, [student_id, course_id], (err, result) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.status(201).json({
+            message: "Student enrolled in course successfully",
+            enrollment: { student_id, course_id }
+        });
     });
 });
 
