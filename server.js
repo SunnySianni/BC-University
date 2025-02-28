@@ -1,24 +1,48 @@
-const express = require("express");
-const mysql = require("mysql2");
-const cors = require("cors");
-const db = require("./config/db");
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import bodyParser from "body-parser";
+import { dirname } from "path";
+import errorHandler from "./middleware/errorHandler.js";
+import studentRoute from './routes/students.js'; 
+import coursesRoute from './routes/courses.js';
+import cors from "cors";
+import 'dotenv/config'; 
+
+// ES6 module __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 
-// CORS configuration to allow only frontend requests from localhost:3000
-const corsOptions = {
-    origin: 'http://localhost:3000', // Your frontend URL
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type'],
-};
-app.use(cors(corsOptions));
-app.use(express.json());  // Middleware to parse JSON data
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
 
+// Set view engine
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
-
-
-
-
-app.listen(5000, () => {
-    console.log("Server running on port http://localhost:5000/courses");
+// Default route for dashboard
+app.get("/", (req, res) => {
+  res.render("dashboard", { title: "Dashboard" });
 });
+
+app.get("/students", studentRoute); 
+app.get("/courses", coursesRoute)
+
+// Error handling middleware
+app.use(errorHandler);
+
+// Start the server
+const startServer = async () => {
+
+  const PORT = process.env.PORT;
+  app.listen(PORT, () => {
+    console.log(`Server running on port http://localhost:${PORT}`);
+  });
+};
+
+startServer();
