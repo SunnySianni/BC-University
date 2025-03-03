@@ -1,97 +1,52 @@
+// models/index.js
 "use strict";
 
-const fs = require("fs");
-const path = require("path");
-const Sequelize = require("sequelize");
-const process = require("process");
+import fs from 'fs';
+import path from 'path';
+import { Sequelize } from 'sequelize';
+import process from 'process';
+import sequelizeConfig from '../config/config.js';  // Adjusted import for config
+
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || "development";
-const config = require(__dirname + "/../config/config.json")[env];
+const env = process.env.NODE_ENV || 'development';
+const config = sequelizeConfig[env];  // Accessing config from the correct source
+
 const db = {};
 
 let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
-  sequelize = new Sequelize(
-    config.database,
-    config.username,
-    config.password,
-    config
-  );
+  sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
+// Read all files in the current directory (models) and import them
 fs.readdirSync(__dirname)
   .filter((file) => {
     return (
-      file.indexOf(".") !== 0 &&
+      file.indexOf('.') !== 0 &&
       file !== basename &&
-      file.slice(-3) === ".js" &&
-      file.indexOf(".test.js") === -1
+      file.slice(-3) === '.js' &&
+      !file.includes('.test.js')
     );
   })
   .forEach((file) => {
-    const model = require(path.join(__dirname, file))(
-      sequelize,
-      Sequelize.DataTypes
-    );
-    db[model.name] = model;
+    // Dynamically require each model
+    const model = import(path.join(__dirname, file)).then((module) => module.default(sequelize, Sequelize.DataTypes));
+    model.then((modelInstance) => {
+      db[modelInstance.name] = modelInstance;
+    });
   });
 
+// After all models are imported, run associations
 Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }
 });
 
+// Attach sequelize and Sequelize to the db object for later use
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-module.exports = db;
-
-import express from "express";
-import { addCourse, deleteCourse } from "./services/courseService.js";
-import Course from "./models/course.js";
-
-const app = express();
-const port = 3000;
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.set("view engine", "ejs");
-
-// Route to display courses
-app.get("/courses", async (req, res) => {
-  try {
-    const courses = await Course.findAll();
-    res.render("courses/courses", { title: "Courses", courses });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve courses" });
-  }
-});
-
-// Route to add a course
-app.post("/courses", async (req, res) => {
-  const { name, code } = req.body;
-  try {
-    await addCourse(name, code);
-    res.redirect("/courses");
-  } catch (error) {
-    res.status(500).json({ error: "Failed to add course" });
-  }
-});
-
-// Route to delete a course
-app.post("/courses/delete/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    await deleteCourse(id);
-    res.redirect("/courses");
-  } catch (error) {
-    res.status(500).json({ error: "Failed to delete course" });
-  }
-});
-
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
+export default db;

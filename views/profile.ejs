@@ -21,11 +21,12 @@
         <form id="profile-form" class="needs-validation" novalidate>
             <div class="mb-3">
                 <label for="user-name" class="form-label">Your Name</label>
-                <input type="text" class="form-control" id="user-name" name="name"  required  minlength="2" maxlength="50" pattern="[A-Za-z0-9\s-]+" >  
+                <input type="text" class="form-control" id="user-name" name="name" required minlength="2" maxlength="50" pattern="[A-Za-z0-9\s-]+" />
                 <div class="invalid-feedback">
-                    Please enter a valid name (2-50 characters)
+                    Please enter a valid name (2-50 characters).
                 </div>
             </div>  
+
             <div class="mb-3">
                 <label for="user-persona" class="form-label">
                     Your Persona
@@ -37,16 +38,38 @@
                     name="persona"
                     rows="3" 
                     maxlength="200"
+                    oninput="updatePersonaCounter()"
                 ></textarea>
                 <div id="persona-counter" class="form-text">0/200</div>
             </div>
-            <button type="submit" class="btn btn-primary" id="submit-btn">
-                Save Profile
-            </button>
+
+            <button type="submit" class="btn btn-primary" id="submit-btn">Save Profile</button>
         </form>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./js/profile.js"></script>
+
+    <script>
+        // Update the character count for persona field
+        function updatePersonaCounter() {
+            const personaText = document.getElementById('user-persona').value;
+            const counter = document.getElementById('persona-counter');
+            counter.textContent = `${personaText.length}/200`;
+        }
+
+        // Form validation
+        (function () {
+            'use strict'
+            var form = document.getElementById('profile-form')
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })()
+    </script>
 </body>
 </html>

@@ -1,42 +1,29 @@
-import { DataTypes, Model } from "sequelize";
-import sequelize from "../config/database.js"; // Ensure this file exports a Sequelize instance
+// models/Course.js
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 
-class Course extends Model {}
-
-Course.init(
-  {
+const Course = sequelize.define('Course', {
     id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
     },
-    name: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
+    course_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
-    code: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      unique: true,
+    schedule: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
-  },
-  {
-    sequelize, // Pass the Sequelize instance
-    modelName: "Course",
-    tableName: "Course",
-    timestamps: true, // Automatically manages `created_at` & `updated_at`
-    createdAt: "created_at",
-    updatedAt: "updated_at",
-  }
-);
+}, {
+    tableName: 'courses',
+    timestamps: false,  // Disable createdAt/updatedAt columns
+});
 
-Course.associate = function (models) {
-  // associations can be defined here
-  Course.belongsToMany(models.Student, {
-    through: "StudentCourses",
-    as: "students",
-    foreignKey: "courseId",
-  });
+// Instead of importing Student directly, you reference it as a string (which will be resolved later)
+Course.associate = (models) => {
+    Course.belongsToMany(models.Student, { through: 'enrollments' });
 };
 
 export default Course;

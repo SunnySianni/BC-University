@@ -1,50 +1,38 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
+// models/Student.js
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 
-const Student = sequelize.define(
-  "Student",
-  {
+const Student = sequelize.define('Student', {
     id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
     },
-    fullName: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
     email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-      validate: {
-        isEmail: true,
-      },
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false,
     },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    age: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
     },
-    role: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: "student",
+    enrollment_status: {
+        type: DataTypes.ENUM('Enrolled', 'Pending', 'Graduated'),
+        defaultValue: 'Pending',
     },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-  },
-  {
-    tableName: "Student",
-    timestamps: true,
-    createdAt: "created_at",
-    updatedAt: "updated_at",
-  }
-);
+}, {
+    tableName: 'students',
+    timestamps: false,  // Disable createdAt/updatedAt columns
+});
+
+// Instead of importing Course directly, you reference it as a string (which will be resolved later)
+Student.associate = (models) => {
+    Student.belongsToMany(models.Course, { through: 'enrollments' });
+};
 
 export default Student;

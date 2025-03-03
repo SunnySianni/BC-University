@@ -1,59 +1,37 @@
-import mongoose from 'mongoose';
+// config/database.js
+import { Sequelize } from 'sequelize';
 import 'dotenv/config';
 
-/**
- * MongoDB connection options
- * @constant {Object}
- */
-const DB_OPTIONS = {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    autoIndex: true,
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000,
-    family: 4
-};
+const sequelize = new Sequelize(
+    process.env.DB_NAME,       // Your database name
+    process.env.DB_USER,       // Your database username
+    process.env.DB_PASSWORD,   // Your database password
+    {
+        host: process.env.DB_HOST,  // Your database host (e.g., localhost)
+        dialect: 'mysql',           // Database dialect (MySQL)
+        logging: false,             // Disable Sequelize logging for cleaner output
+    }
+);
 
-/**
- * Establishes connection to MongoDB
- * @async
- * @returns {Promise<typeof mongoose>}
- * @throws {Error} Database connection error
- */
-const connectDB = async () => {
+// Default export
+export default sequelize;
+
+// Optionally, you can still export connectDB and syncDatabase if you need them elsewhere
+export const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGODB_URI, DB_OPTIONS);
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
-        return conn;
+        await sequelize.authenticate();
+        console.log('MySQL Database Connected');
     } catch (err) {
         console.error('Database connection error:', err.message);
         process.exit(1);
     }
 };
 
-// Mongoose connection event handlers
-mongoose.connection.on('connected', () => {
-    console.log('Mongoose connected to DB');
-});
-
-mongoose.connection.on('error', (err) => {
-    console.error('Mongoose connection error:', err);
-});
-
-mongoose.connection.on('disconnected', () => {
-    console.log('Mongoose disconnected from DB');
-});
-
-// Handle application termination
-process.on('SIGINT', async () => {
+export const syncDatabase = async () => {
     try {
-        await mongoose.connection.close();
-        console.log('Mongoose connection closed through app termination');
-        process.exit(0);
+        await sequelize.sync({ force: false });
+        console.log('Database synced successfully');
     } catch (err) {
-        console.error('Error during database disconnection:', err);
-        process.exit(1);
+        console.error('Error syncing database:', err.message);
     }
-});
-
-export default connectDB;
+};
